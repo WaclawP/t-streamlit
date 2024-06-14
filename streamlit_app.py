@@ -1,40 +1,33 @@
-import altair as alt
-import numpy as np
-import pandas as pd
 import streamlit as st
+import sqlite3
 
-"""
-# Welcome to Streamlit!
+conn = sqlite3.connect('dane.db', check_same_thread=False)
+cursor = conn.cursor()
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:.
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+st.title("Welcome")
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+def form_creation():
+    st.write("Fill the form")
+    with st.form(key="Registracion form"):
+        surname = st.text_input('surname: ')
+        name = st.text_input('name: ')
+        date = st.date_input('podaj date')
+        submit = st.form_submit_button(label='Register')
+    
+    if submit == True:
+        st.success("Success")
+        add_info(surname, name, date)
+        
+    
+def add_info(a,b,c):
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS registracion (SURNAME TEXT(50), NAME TEXT(50), DATE TEXT(50) )
+        """
+    )
+    cursor.execute("INSERT INTO registracion VALUES (?,?,?)", (a,b,c))
+    conn.commit()
+    conn.close()
+    st.success("SQLITE update")
+form_creation()
 
-num_points = st.slider("Number of points in spiral", 1, 10000, 1100)
-num_turns = st.slider("Number of turns in spiral", 1, 300, 31)
-
-indices = np.linspace(0, 1, num_points)
-theta = 2 * np.pi * num_turns * indices
-radius = indices
-
-x = radius * np.cos(theta)
-y = radius * np.sin(theta)
-
-df = pd.DataFrame({
-    "x": x,
-    "y": y,
-    "idx": indices,
-    "rand": np.random.randn(num_points),
-})
-
-st.altair_chart(alt.Chart(df, height=700, width=700)
-    .mark_point(filled=True)
-    .encode(
-        x=alt.X("x", axis=None),
-        y=alt.Y("y", axis=None),
-        color=alt.Color("idx", legend=None, scale=alt.Scale()),
-        size=alt.Size("rand", legend=None, scale=alt.Scale(range=[1, 150])),
-    ))
