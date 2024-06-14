@@ -1,6 +1,7 @@
 import streamlit as st
 import pymysql.cursors
 
+
 # Podanie danych połączenia
 db_host = "sql125.lh.pl"
 db_user = "serwer274744_streamlit"
